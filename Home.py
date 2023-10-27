@@ -1,11 +1,5 @@
 import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
-from datetime import datetime
-import tiktoken
-from utils import pdf_to_text, generate_summary, save_vector_store, retrieval_augmented_generation
+from utils import pdf_to_text, generate_summary, save_vector_store, save_and_get_pdf_link
 
 
 IMAGE = "https://miro.medium.com/v2/resize:fit:1400/1*02uoHJoYt3E7rylWEny02w.jpeg"
@@ -24,6 +18,9 @@ if 'store' not in st.session_state:
 
 if 'summary' not in st.session_state:
     st.session_state.summary = None
+
+if 'pdf' not in st.session_state:
+    st.session_state.pdf = None
 print(st.session_state)
 
 
@@ -61,6 +58,11 @@ if pdf:
             st.session_state.store = saved_vector_store
             st.toast("Saved to the Vector Store! 👍")
 
+        pdf_url = save_and_get_pdf_link(pdf)
+        if pdf_url:
+            st.toast("PDF uploaded successfully! 👍")
+            st.session_state.pdf = pdf_url
+
         with st.expander("View Extracted Text"):
                 st.subheader("Extracted Text from the PDF")
                 st.write(extracted_text)
@@ -70,6 +72,5 @@ if pdf:
         st.write(summary)
 
                     
-
 
 
