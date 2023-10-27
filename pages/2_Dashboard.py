@@ -9,6 +9,13 @@ FEEDBACK_COLUMN_THREE = "Feedback"
 FEEDBACK_CSV = "feedback.csv"
 
 
+#needful functions
+@st.cache_data
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv(index = False).encode('utf-8')
+
+
 st.title("Dashboard")
 
 st.header("Feedback Analysis")
@@ -20,6 +27,14 @@ else:
     #read the data
     feedbacks = pd.read_csv(FEEDBACK_CSV)
     st.dataframe(feedbacks)
+    # save the data
+    feedback_data = convert_df(pd.read_csv(FEEDBACK_CSV))
+    st.download_button(
+        label = "Download Feedback Data",
+        data = feedback_data,
+        file_name = "feedback.csv",
+        mime='text/csv',
+    )
     #count plot
     sns.set_theme(style="whitegrid", palette="pastel")
     chart_fig = plt.figure(figsize=(5,5))
