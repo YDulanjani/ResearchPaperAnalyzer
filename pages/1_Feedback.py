@@ -7,6 +7,7 @@ import pandas as pd
 FEEDBACK_COLUMN_ONE = "Date"
 FEEDBACK_COLUMN_TWO = "Summary"
 FEEDBACK_COLUMN_THREE = "Feedback"
+FEEDBACK_COLUMN_FOUR = "PDF_url"
 FEEDBACK_CSV = "feedback.csv"
 
 # needful functions
@@ -14,7 +15,7 @@ def disabled():
     st.session_state.disabled = True
 
 
-def update_feedback(interact_date, user_summary, user_feedback):
+def update_feedback(interact_date, user_summary, user_feedback, pdf_url):
     if not os.path.exists(FEEDBACK_CSV):
         feedback_data = pd.DataFrame(columns = [FEEDBACK_COLUMN_ONE, FEEDBACK_COLUMN_TWO, FEEDBACK_COLUMN_THREE])
         feedback_data.to_csv(FEEDBACK_CSV, index = False)
@@ -25,6 +26,7 @@ def update_feedback(interact_date, user_summary, user_feedback):
     metadata[FEEDBACK_COLUMN_ONE] = interact_date
     metadata[FEEDBACK_COLUMN_TWO] = user_summary
     metadata[FEEDBACK_COLUMN_THREE] = user_feedback
+    metadata[FEEDBACK_COLUMN_FOUR] = pdf_url
     feedback_df_new = pd.concat([feedback_df, pd.DataFrame(metadata, index = [0])], ignore_index = True)
     feedback_df_new.to_csv(FEEDBACK_CSV, index = False)
     print("Saved successfully")
@@ -39,6 +41,9 @@ st.title("We value Your FeedBack")
 if not st.session_state.summary:
     st.error("Please Upload a pdf and generate a summary before giving feedback", icon = "🚨")
 
+elif not st.session_state.pdf:
+    st.error("PDF uploading has been failed!", icon = "🚨")
+
 else:
     st.subheader("Please provide your feedback with web interaction")
     st.markdown("**Are you satidfied with the service?**")
@@ -51,11 +56,11 @@ else:
     with col1:
         #set feedback buttons
         if st.button("Yes", type = "primary", on_click=disabled, disabled=st.session_state.disabled, use_container_width = True):
-            feedback_state = update_feedback(datetime.now(), st.session_state.summary, "Yes")
+            feedback_state = update_feedback(datetime.now(), st.session_state.summary, "Yes", st.session_state.pdf)
 
     with col2:
         if st.button("No", type = "primary", on_click=disabled, disabled=st.session_state.disabled, use_container_width = True):
-            feedback_state = update_feedback(datetime.now(), st.session_state.summary, "No")
+            feedback_state = update_feedback(datetime.now(), st.session_state.summary, "No", st.session_state.pdf)
 
     #say thank you if the feedback is given
     if feedback_state:
