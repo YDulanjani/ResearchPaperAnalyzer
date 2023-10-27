@@ -1,6 +1,7 @@
 import PyPDF2
 import os
 import streamlit as st
+import io
 
 import openai
 from langchain.chains.llm import LLMChain
@@ -12,10 +13,12 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
+from filestack import Client
 
 # environment variables
 os.environ['OPENAI_API_KEY'] = st.secrets["database"]["OPENAI_API_KEY"]
 os.environ['LANGCHAIN_HANDLER']='langchain'
+os.environ["FILESTACK_KEY"] = st.secrets["database"]["FILESTACK_KEY"]
 
 openai.api_key=os.environ['OPENAI_API_KEY']
 
@@ -82,3 +85,14 @@ def retrieval_augmented_generation(query, database):
   docs = database.similarity_search(query)
   chain = load_qa_chain(OpenAI(temperature=0), chain_type="stuff")
   return chain.run(input_documents=docs, question=query)
+
+
+def save_and_get_pdf_link(file_content):
+    client = Client(apikey = os.environ["FILESTACK_KEY"])
+
+    new_filelink = client.upload(file_obj=file_content)
+
+    url = new_filelink.url
+    print(url)
+
+    return url
